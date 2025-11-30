@@ -23,7 +23,9 @@ if (session_status() === PHP_SESSION_NONE) {
                 <li><a href="../auth/login.php">Login</a></li>
                 <li><a href="../auth/register.php">Register</a></li>
             <?php endif; ?>
+            
         </ul>
+        <hr>
     </nav>
 </header>
 <main>

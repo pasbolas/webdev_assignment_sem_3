@@ -74,23 +74,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php endif; ?>
 
 <form method="post" action="">
-    <label>Username:</label>
-    <input type="text" name="username" value="<?= htmlspecialchars($username) ?>">
+    <table border="0" cellpadding="8">
+        <tr>
+            <td><label for="username">Username:</label></td>
+            <td>
+                <input type="text" id="username" name="username" 
+                       value="<?= htmlspecialchars($username) ?>">
+            </td>
+        </tr>
 
-    <label>Full Name:</label>
-    <input type="text" name="fullname" value="<?= htmlspecialchars($fullname) ?>">
+        <tr>
+            <td><label for="fullname">Full Name:</label></td>
+            <td>
+                <input type="text" id="fullname" name="fullname" 
+                       value="<?= htmlspecialchars($fullname) ?>">
+            </td>
+        </tr>
 
-    <label>Mobile (10 digits):</label>
-    <input type="text" name="mobile" value="<?= htmlspecialchars($mobile) ?>">
+        <tr>
+            <td><label for="mobile">Mobile (10 digits):</label></td>
+            <td>
+                <input type="text" id="mobile" name="mobile" 
+                       value="<?= htmlspecialchars($mobile) ?>">
+            </td>
+        </tr>
 
-    <label>Password (min 6 chars):</label>
-    <input type="password" name="password">
+        <tr>
+            <td><label for="password">Password (min 6 chars):</label></td>
+            <td>
+                <input type="password" id="password" name="password">
+            </td>
+        </tr>
 
-    <label>Confirm Password:</label>
-    <input type="password" name="confirm_password">
+        <tr>
+            <td><label for="confirm_password">Confirm Password:</label></td>
+            <td>
+                <input type="password" id="confirm_password" name="confirm_password">
+            </td>
+        </tr>
 
-    <button type="submit">Register</button>
+        <tr>
+            <td></td>
+            <td>
+                <button type="submit">Register</button>
+            </td>
+        </tr>
+    </table>
 </form>
+
 
 <p>Already registered? <a href="login.php">Login here</a>.</p>
 

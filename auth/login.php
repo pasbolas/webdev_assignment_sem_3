@@ -24,7 +24,7 @@
             if ($user && password_verify($password, $user['password'])) {
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['fullname'] = $user['fullname'];
-                header('Location: ../books/search.php');
+                header('Location: ../books/search.php'); // go strraight here now, we will do the search page
                 exit;
             } else {
                 $errors[] = 'Invalid username or password.'; // you didnt get the invite buddy, get out.
