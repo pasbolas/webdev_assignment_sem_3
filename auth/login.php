@@ -15,13 +15,12 @@
         } 
         else 
         {
-            
-            // is this a bday question?
-            $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?'); // preparing the cake 
-            $stmt->execute([$username]); // lighting up the candles for execution
-            $user = $stmt->fetch(); // getting the first slice of cake
+            // Login using direct query and plain text password check
+            $result = mysqli_query($conn, "SELECT * FROM users WHERE username = '$username'");
+            $user = $result ? mysqli_fetch_assoc($result) : null;
+            if ($result) { mysqli_free_result($result); }
 
-            if ($user && password_verify($password, $user['password'])) {
+            if ($user && $password === $user['password']) {
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['fullname'] = $user['fullname'];
                 header('Location: ../books/search.php'); // go strraight here now, we will do the search page

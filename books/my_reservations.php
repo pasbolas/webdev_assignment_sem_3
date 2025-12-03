@@ -16,9 +16,20 @@ $sql = "
     WHERE rb.username = ?
     ORDER BY rb.reserved_date DESC
 ";
-$stmt = $pdo->prepare($sql);
-$stmt->execute([$username]);
-$reservations = $stmt->fetchAll();
+$reservations = [];
+$result = mysqli_query($conn, "
+    SELECT rb.id, rb.reserved_date, b.isbn, b.title, b.author
+    FROM reserved_books rb
+    JOIN books b ON b.isbn = rb.isbn
+    WHERE rb.username = '$username'
+    ORDER BY rb.reserved_date DESC
+");
+if ($result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $reservations[] = $row;
+    }
+    mysqli_free_result($result);
+}
 
 $message = $_GET['msg'] ?? '';
 ?>

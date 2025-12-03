@@ -20,8 +20,7 @@
     }
 
     // Only delete if it belongs to this user
-    $stmt = $pdo->prepare('DELETE FROM reserved_books WHERE id = ? AND username = ?');
-    $stmt->execute([$id, $_SESSION['username']]);
+    mysqli_query($conn, "DELETE FROM reserved_books WHERE id = $id AND username = '{$_SESSION['username']}'");
 
     header('Location: my_reservations.php?msg=' . urlencode('Reservation removed.'));
     exit;

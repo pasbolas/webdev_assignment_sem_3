@@ -35,18 +35,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Check username unique
     if (empty($errors)) {
-        $stmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE username = ?');
-        $stmt->execute([$username]);
-        if ($stmt->fetchColumn() > 0) {
+        $result = mysqli_query($conn, "SELECT COUNT(*) AS cnt FROM users WHERE username = '$username'");
+        $row = $result ? mysqli_fetch_assoc($result) : null;
+        if ($result) { mysqli_free_result($result); }
+        if ($row && (int)$row['cnt'] > 0) {
             $errors[] = 'Username already taken.';
         }
     }
 
     // Insert user
     if (empty($errors)) {
-        $hash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare('INSERT INTO users (username, password, fullname, mobile) VALUES (?, ?, ?, ?)');
-        $stmt->execute([$username, $hash, $fullname, $mobile]);
+        $insertSql = "INSERT INTO users (username, password, fullname, mobile) VALUES ('$username', '$password', '$fullname', '$mobile')";
+        mysqli_query($conn, $insertSql);
 
         $success = 'Registration successful. You can now log in.';
         // clear form

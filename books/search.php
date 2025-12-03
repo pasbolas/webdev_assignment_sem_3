@@ -36,8 +36,15 @@
     $whereSql = $where ? implode(' AND ', $where) : '1'; // followed this tutorial https://www.w3schools.com/php/func_string_implode.asp
 
     // fetching the categories for drop down menu
-    $catStmt = $pdo->query('SELECT cat_code, cat_desc FROM category ORDER BY cat_desc');
-    $categories = $catStmt->fetchAll();
+    $categories = [];
+    $catSql = 'SELECT cat_code, cat_desc FROM category ORDER BY cat_desc';
+    $catResult = mysqli_query($conn, $catSql);
+    if ($catResult) {
+        while ($row = mysqli_fetch_assoc($catResult)) {
+            $categories[] = $row;
+        }
+        mysqli_free_result($catResult);
+    }
 
     // Fetch ALL books
     $sql = "
@@ -54,9 +61,37 @@
         ORDER BY b.title
     ";
 
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params); // we are basically pluggin in the params here as a big single string
-    $books = $stmt->fetchAll(); // books object here is the all books rows with those params
+    // Simple query execution
+    // Replace placeholders with already-built LIKE/equals constraints via $whereSql and $params
+    // For simplicity, rebuild $whereSql directly from provided inputs
+    $sqlWhereParts = [];
+    if ($title !== '') { $sqlWhereParts[] = "b.title LIKE '%$title%'"; }
+    if ($author !== '') { $sqlWhereParts[] = "b.author LIKE '%$author%'"; }
+    if ($cat_code !== '') { $sqlWhereParts[] = "b.cat_code = '$cat_code'"; }
+    $sqlWhere = !empty($sqlWhereParts) ? implode(' AND ', $sqlWhereParts) : '1';
+
+    $sql = "
+        SELECT 
+            b.isbn, 
+            b.title, 
+            b.author, 
+            c.cat_desc,
+            rb.id AS reservation_id
+        FROM books b
+        JOIN category c ON c.cat_code = b.cat_code
+        LEFT JOIN reserved_books rb ON rb.isbn = b.isbn
+        WHERE $sqlWhere
+        ORDER BY b.title
+    ";
+
+    $books = [];
+    $result = mysqli_query($conn, $sql);
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $books[] = $row;
+        }
+        mysqli_free_result($result);
+    }
 
     $message = $_GET['msg'] ?? '';
 ?>

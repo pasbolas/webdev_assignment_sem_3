@@ -20,9 +20,9 @@ if ($isbn === '') {
 }
 
 // Check book exists
-$stmt = $pdo->prepare('SELECT * FROM books WHERE isbn = ?');
-$stmt->execute([$isbn]);
-$book = $stmt->fetch();
+$result = mysqli_query($conn, "SELECT * FROM books WHERE isbn = '$isbn'");
+$book = $result ? mysqli_fetch_assoc($result) : null;
+if ($result) { mysqli_free_result($result); }
 
 if (!$book) {
     header('Location: search.php?msg=' . urlencode('Book not found.'));
@@ -30,16 +30,16 @@ if (!$book) {
 }
 
 // Check if already reserved
-$stmt = $pdo->prepare('SELECT id FROM reserved_books WHERE isbn = ?');
-$stmt->execute([$isbn]);
-if ($stmt->fetch()) {
+$result = mysqli_query($conn, "SELECT id FROM reserved_books WHERE isbn = '$isbn'");
+if ($result && mysqli_fetch_assoc($result)) {
     header('Location: search.php?msg=' . urlencode('Book is already reserved.'));
     exit;
 }
+if ($result) { mysqli_free_result($result); }
 
 // Insert reservation
-$stmt = $pdo->prepare('INSERT INTO reserved_books (username, isbn, reserved_date) VALUES (?, ?, ?)');
-$stmt->execute([$_SESSION['username'], $isbn, date('Y-m-d')]);
+$reserved_date = date('Y-m-d');
+mysqli_query($conn, "INSERT INTO reserved_books (username, isbn, reserved_date) VALUES ('{$_SESSION['username']}', '$isbn', '$reserved_date')");
 
 header('Location: search.php?msg=' . urlencode('Book reserved successfully.'));
 exit;
