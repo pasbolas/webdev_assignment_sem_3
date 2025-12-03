@@ -34,22 +34,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Check username unique
-    if (empty($errors)) {
+    if (empty($errors)) 
+    {
         $result = mysqli_query($conn, "SELECT COUNT(*) AS cnt FROM users WHERE username = '$username'");
         $row = $result ? mysqli_fetch_assoc($result) : null;
-        if ($result) { mysqli_free_result($result); }
-        if ($row && (int)$row['cnt'] > 0) {
+
+        if ($result) { mysqli_free_result($result); } // clearing out memory for greener future where our kids will breathe healthy air
+
+        if ($row && (int)$row['cnt'] > 0) // making sure no duplicates exists
+        {
             $errors[] = 'Username already taken.';
         }
     }
 
     // Insert user
-    if (empty($errors)) {
+    if (empty($errors)) 
+    {
         $insertSql = "INSERT INTO users (username, password, fullname, mobile) VALUES ('$username', '$password', '$fullname', '$mobile')";
         mysqli_query($conn, $insertSql);
 
         $success = 'Registration successful. You can now log in.';
-        // clear form
+        
+        // clear form, dont want the values to fossilize lol
         $username = $fullname = $mobile = '';
     }
 }

@@ -8,68 +8,34 @@
         exit;
     }
 
-    // We are readin gthe search field here
+    // We are reading the search field here
     $title    = trim($_GET['title'] ?? '');
     $author   = trim($_GET['author'] ?? '');
     $cat_code = trim($_GET['cat_code'] ?? '');
-
-    // Build WHERE
-    $where  = [];
-    $params = [];
-
-    if ($title !== '')     
-    {
-        $where[]  = 'b.title LIKE ?';
-        $params[] = '%' . $title . '%';
-    }
-    if ($author !== '') 
-    {
-        $where[]  = 'b.author LIKE ?';
-        $params[] = '%' . $author . '%';
-    }
-    if ($cat_code !== '') 
-    {
-        $where[]  = 'b.cat_code = ?';
-        $params[] = $cat_code;
-    }
-
-    $whereSql = $where ? implode(' AND ', $where) : '1'; // followed this tutorial https://www.w3schools.com/php/func_string_implode.asp
 
     // fetching the categories for drop down menu
     $categories = [];
     $catSql = 'SELECT cat_code, cat_desc FROM category ORDER BY cat_desc';
     $catResult = mysqli_query($conn, $catSql);
-    if ($catResult) {
-        while ($row = mysqli_fetch_assoc($catResult)) {
+
+    if ($catResult) // this is just making dictionary but for php
+    {
+        while ($row = mysqli_fetch_assoc($catResult)) 
+        {
             $categories[] = $row;
         }
-        mysqli_free_result($catResult);
+        mysqli_free_result($catResult); //pooopy garbage collection of mysql
     }
 
-    // Fetch ALL books
-    $sql = "
-        SELECT 
-            b.isbn, 
-            b.title, 
-            b.author, 
-            c.cat_desc,
-            rb.id AS reservation_id
-        FROM books b
-        JOIN category c ON c.cat_code = b.cat_code
-        LEFT JOIN reserved_books rb ON rb.isbn = b.isbn
-        WHERE $whereSql
-        ORDER BY b.title
-    ";
 
     // Simple query execution
-    // Replace placeholders with already-built LIKE/equals constraints via $whereSql and $params
-    // For simplicity, rebuild $whereSql directly from provided inputs
     $sqlWhereParts = [];
     if ($title !== '') { $sqlWhereParts[] = "b.title LIKE '%$title%'"; }
     if ($author !== '') { $sqlWhereParts[] = "b.author LIKE '%$author%'"; }
     if ($cat_code !== '') { $sqlWhereParts[] = "b.cat_code = '$cat_code'"; }
     $sqlWhere = !empty($sqlWhereParts) ? implode(' AND ', $sqlWhereParts) : '1';
 
+    // Now only fetch the books which mathces the query
     $sql = "
         SELECT 
             b.isbn, 
@@ -86,6 +52,7 @@
 
     $books = [];
     $result = mysqli_query($conn, $sql);
+    
     if ($result) {
         while ($row = mysqli_fetch_assoc($result)) {
             $books[] = $row;
@@ -98,9 +65,12 @@
 
 <h2>Search for a Book</h2>
 
+<!-- this just prints the message received back in the url -->
 <?php if ($message): ?>
     <div class="success"><?= htmlspecialchars($message) ?></div>
 <?php endif; ?>
+
+<br>
 
 <form method="get" action="">
     <label>Title (partial allowed):</label>
@@ -113,9 +83,12 @@
     <select name="cat_code">
         <option value="">-- Any --</option>
         <?php foreach ($categories as $cat): ?>
-            <option value="<?= $cat['cat_code'] ?>"
+
+            <option value="<?= $cat['cat_code'] ?> // we are just getting the cat_code var of cat object" 
+
                 <?= ($cat_code !== '' && $cat_code == $cat['cat_code']) ? 'selected' : '' ?>>
                 <?= htmlspecialchars($cat['cat_desc']) ?>
+
             </option>
         <?php endforeach; ?>
     </select>
@@ -156,10 +129,13 @@
 
                 <td>
                     <?php if (!$book['reservation_id']): ?>
+
                         <form method="post" action="reserve.php" style="display:inline;">
+
                             <input type="hidden" name="isbn" value="<?= htmlspecialchars($book['isbn']) ?>">
                             <button type="submit">Reserve</button>
                         </form>
+
                     <?php else: ?>
                         <button disabled>Reserve</button>
                     <?php endif; ?>

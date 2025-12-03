@@ -18,6 +18,7 @@
             // Login using direct query and plain text password check
             $result = mysqli_query($conn, "SELECT * FROM users WHERE username = '$username'");
             $user = $result ? mysqli_fetch_assoc($result) : null;
+            
             if ($result) { mysqli_free_result($result); }
 
             if ($user && $password === $user['password']) {
